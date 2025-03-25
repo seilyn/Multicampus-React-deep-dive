@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "./build/", // 코드를 '/src' 디렉토리, transfile된 코드가 './build' 라는 곳에 된다.
+    "allowJs": true, // JS 뒤죽박죽되도 허용하겠다 (js,ts 호환가능)
+    "esModuleInterop": true, // 하위모듈 호환성
+    "sourceMap": true, // .ts, .tsx로 실행하는게 아닌 js로 트랜스파일 -> 실행. (but 디버깅은 ts, tsx의 실제 소스코드로) => 이 디버깅 정보 파일을 sourceMap이라고 한다.
+    "noImplicitAny": true, // Any를 쓰지 못하게 하겠다. => Transfile 할 때 Error 가 날것임. (암시적 any만 불허, 명시적 any는 허용 (ex: let a: Any)) , 암시적 Any = let a; 이것은 eslint에서 막는다.
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "target": "ESNext", // 타겟을 최신 Javscript로 , 구형브라우저는 타겟을 ES5로 했었음.
+    "jsx": "react"
+  },
+  "include": ["./src/**/*"]
+}

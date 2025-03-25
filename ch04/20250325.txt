@@ -1,0 +1,6 @@
+React router
+
+컴포넌트 기반 라우터 (선언적 라우터) => 이건 옛날에 많이 사용하던 방식
+createBrowserRouter 방식을 추천한다.
+react-router Data API (6.4 이상) => 아주 막강한 기능임.
+4장은 data api 위주로 설명해주겠다.

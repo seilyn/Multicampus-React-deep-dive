@@ -1,0 +1,178 @@
+실행 컨텍스트 스택 
+- 함수가 실행될때마다 쌓임 (실행 컨텍스트 스택) -> 함수 호출이 완료되면 스택에서 pop, 실행컨텍스트 내보에 호출 객체(object 생성), 
+- object는 객체(참조형)오브젝트 -> heap안에 메모리주소참조
+
+
+1. 전역실행컨텍스트 : 전역 
+
+자바스크립트 함수는 객체임
+인터프리터 -> 한줄씩 코드 읽어가면서 실행, 
+
+호이스팅
+var : 스캔 후 미리할당(메모리), 그다음 execution(라인단위)
+선언적 함수 : (function () {} )형태 -> 함수가 초기화됨. (함수가 미리다만들어짐)
+
+
+호이스팅 x	
+let,const: 내부적으로는 호이스팅하지만 변수를 바로 쓰지 않도록(초기화하는데 사용하지못하게 막아놓음) -> let문 만나면 그때열어줌
+함수표현식 (const a = function() {} ) 함수가 할당되기전에는 undefined
+
+console.log(A)
+
+function A() {}
+var A = ""
+
+시 function 먼저 만들고 var는 건너뛴다. var는 건너뛰고 선언적 함수는 덮어 쓴다.
+
+자주 바뀌면let 쓰고, 변경될일이 없으면 const를 사용하면된다.
+함수는 const를 쓸 것을 권장함. 변경될일이 없기때문에. 동일한이름으로 바꿀필요가없기때문임.
+
+const A1 = function(a,b) {return a+b)} 
+=?> A1(1,2,3,4,5,6,7) 해도 컴파일 에러가안남.
+뒤에 인자가 arguments (유사배열), 뒤에 더나옴 (callee(피호출자))
+
+
+
+var msg = "GLOBAL";
+function outer() {
+  var msg = "OUTER";
+  console.log(msg);
+  inner();
+  function inner() {
+    var msg = "INNER";
+    console.log(msg);
+  }
+}
+outer();
+
+
+
+scope chain이 outer가 정의된 전역 객체를 참조 한다. scope chain은 list 구조.
+inner는 outer 스코프체인을 들고옴.
+[0, outer]
+[1, global]
+
+
+
+
+
+
+react
+Transpiling : .js,ts,tsx,jsx => js 로 -> output: js,css
+Preprocessing : sass(브라우저에서 바로실해안됨) => .css
+
+bundling 한다
+uglify : 코드 난독화 느낌
+splitting : 번들링된 js파일을 여러개로 쪼갬.
+
+Webpack : 번들링이 다 긑나야지만 server로 됨 =-> cra webpack 너무 느림 
+Vite : Rollup라는 모듈 번들러, 웹서버에서 번들링된걸 넣어주면 클라가 받아가는게 아니고, 웹서버에 소스를 올려버림=>브라우저에서 하나하나 받아가서 번들링을 하게 된다. ( 자바스크립트가 번들링) => 즉 브라우저에서 빌드가 일어난다.
+  => 갑자기 새로운 모듈 하나가 추가가 되었다. 그런 경우 추가된 파일만 받아와서 번들링을 해버린다. 전체적인 시간이 줄어든다. (esbuild라는 애가 번들링함 => 속도가 엄청 차이가 많이 난다)
+
+
+Type
+합성 타입 {name: string, age: number }를 만들기 위해 대부분 사용된다.
+타입스크립트는 실행이 안되는게 아니고 정적 타입에 어긋난다고 이해하면 편할것 같다.
+
+Interface 
+편한거 쓰면 된다.
+실행 속도랑은 관련 x -> 번들링해서 js로 실행하기 때문에 
+
+class
+잘 안쓴다.
+
+duck typing
+컴파일할때만 타입체킹 하고 실행할땐 영향 안줌
+런타임시에 타입검증 => 동적 타입의 유산 
+정적,동적(덕타이핑) 둘다 지원 가능하다
+
+객체지향적 : 인터페이스 써라.
+union, computed prop name, tuple 등은 type로 써라.
+interface & interface시 type이 튀어나온다.
+이건 coding convention으로 정의하면 된다.
+
+선언확장
+쓰지마라. 
+자동으로 확장된다 (인터페이스이름이 같은게 중복되면 각각 속성을 자동으로 확장해버림.) => 원하지 않는 확장이 일어남.
+암시적인건 명시적인거보다 못하다.
+명시적으로 extends를 쓰도록.
+
+Type union 시 A Type, B Type에는 name이 공통이고 각각 별개의 프로퍼티가 존재할 경우에 => A|B를 했을 때 union시 B인지 A인지 몰라서 에러날수가 있다고알려줌. 런타임엔 실행된다.
+=> 이거 방지할라고 type guard 코드를 집어넣음.
+수동으로 타입체크 하고 사용할수 있게 작성하는거밖에 없다. 별거없음.
+in 연산자 사용한다 ("속성명" in obj) => 이게 duck typing
+
+type Student = {
+ name: string;
+ studentid: string;
+}
+ type Employee = {
+ name: string;
+ employeeid: string;
+}
+
+ const viewPerson = (person:Student | Employee) => {
+    if ("studentid" in person){
+      // type guard code
+       console.log(`이름 : ${person.name}`);
+       console.log(`학번 : ${person.studentid}`);
+    } else {
+       console.log(`이름 : ${person.name}`);
+       console.log(`사번 : ${person.employeeid}`);
+    }
+
+ }
+
+viewPerson({name:"이몽룡", employeeid:"e123456"})
+ 타입가드 사용하면 red underline 사라짐.
+
+enum vs const
+상수와 변수의 차이
+
+const c1 = "CODE";
+let c2 = "CODE"; 
+let은 문자열로 할당하니 string으로 추론 함.
+const는 "CODE"를 통해서 타입을 추론 -> 즉 "CODE"라는 값 자체가 하나의 타입이 되어버린다.
+let c3 = "CODE" as const; 타입 추론은 const처럼 해라	
+
+declare const c1 = "CODE";
+declare let c2: string;
+declare let c3: "CODE";
+
+const는 그 값만 할당되고 바꿀수 없다.
+as coinst : const assertion 상수 단언. => 추론의 범위를 좁히고 값의 재할당을 막아줌.
+================================
+const StockCode1 = {
+  Apple: "AAPL",
+  Tesla: "TSLA",
+}
+
+const StockCode2 = {
+  Apple: "AAPL",
+  Tesla: "TSLA",
+} as const;
+
+
+StockCode1.Apple = "MSFT";
+StockCode2.Apple = "asd";
+
+declare const StockCode1: {
+    Apple: string;
+    Tesla: string;
+};
+declare const StockCode2: {
+    readonly Apple: "AAPL";
+    readonly Tesla: "TSLA";
+};이렇게 된다. 
+================================
+
+그러면 enum vs const 상수 단언을 써도 되고 enum을 써도 된다.
+대신 enum이 가지는 장점이 하나있다. 상수 단언을 통해 추론의 범위를 좁히고 값의 재할당을 막아준다.
+
+Enum은 key->value, value->key 역방향 매핑 지원가능
+const enum 추천 -> 역방향 매핑 하지 않음. 트랜스파일할때 불필요한 코드를 생성하지 않는다. 간단해줌
+타입에 대한 정보는D.TS라는 타입에 대한 정보로 들어가버린다.
+이건 속도에 영향을 준다. js가 생성되는 코드가 달라지기 때문에.
+
+
+npm init vite 프로젝트명 --template react-swc-ts 가 빠르다.
