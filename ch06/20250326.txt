@@ -1,0 +1,128 @@
+React hook
+
+함수컴포넌트 말고 클래스컴포넌트도 같이 사용 가능
+useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef, useContext, useReducer
+reactDnd => 드래그드랍
+과거엔 훅이 없고 고차함수
+
+1. useEffect
+컴포넌트 실행 -> 생명주기와관련된 부작용(side effect) 수행할수있도록하는 react hook
+
+useeffect랑 uselayouteffect는 시점의 차이다. layouteffect가 먼저가상돔 업데이트 후 진행하고 브라우저돔 어베이트
+
+useeffect에서 백엔드에서 데이터 가져와서 리 렌더링, layoutEffect는 쓰지않음.
+레이아웃이펙트에서는 비동기코드를 절대 넣지 말라 (api에서 데이터 가져오는 행위 등)
+useeffect는 여러개 사용 가능(한 컴포넌트에서)
+데이터단위로 상태에 대한 코드를 변경시킬수있따.
+
+[]가 없으면 하나라도 바뀔때마다 계속 실행
+[]하고 클린업함수 리턴하면 컴포넌트 마운트,언마운트될떄 effectCallback실행
+
+useeffect(()=>{
+
+},[count])
+
+이럴때는 count 바뀔때마다 클린업한다.(기존의 데이터 찌꺼기들을 날려버림.)
+
+
+2. useReducer
+reduce는 집계한다.
+members.reduce(reduce fun, p)
+
+(state, action) => {
+  ....
+  return newState
+}
+
+reduce 메소드와 똑같이 생김. => 기존 상태는 불변이고 항상 새로운 상태를 만들어서 리턴하도록 함.
+왜 그러냐?? 
+[1] 상태의 변경 추적, 디버깅을 위함. (time travel debugging => 과거시점의 상태로 돌아가서 다시 기능을 테스트 해볼수 있음.)
+[2] 컴포넌트의 렌더링 성능최적화
+리액트는 반드시 불변성을 지니고 설계되었다. 그렇기 때문에 reducer를 사용한다. 불변성 보장, 저런 디버깅이 가능해진다.
+
+
+(1)입력값 같으면 리턴값도 같아야 한다.
+(2)함수내부의 코드가 바깥에 영향을주거나 읽어오면 side effect 발생 (리턴값이 달라질수가있다)
+(3)함수전달인자는 불변성. 인자변경불가 
+
+========================================
+const initialPoint = 10000;
+const reducer = (totalPoint, member) => {
+totalPoint += member.point;
+return totalPoint;
+}
+const totalPoint = familyMembers.reduce(reducer, initialPoint);
+console.log(`가족 합계 포인트 : ${totalPoint}`)
+========================================
+이코드는 잘못되었다
+========================================
+const initialPoint = 10000;
+const reducer = (totalPoint, member) => {
+const newTotalPoint = totalPoint + member.point;
+return newTotalPoint;
+}
+const totalPoint = familyMembers.reduce(reducer, initialPoint);
+console.log(`가족 합계 포인트 : ${totalPoint}`)
+========================================
+
+이렇게 바꿔야 한다. 기존 파라미터를 변경하면 안되기 때문에.
+
+3. Memoization (useMemo)
+Render는 다시 함수 호출해서 virtual dom에 쓰는거임. render가 계속일어남
+
+4. useCallback
+useCallback에 함수자체를 등록(렌더링할때마다 함수 내부 함수가 다시 호출되어서 성능에 영향을 미칠수있음)
+
+
+5. customHook
+입력처리훅, 특문 허용x훅
+
+
+setstate할떄 값을 바로할당하지 않고 함수를 이용해서 하는게 트렌드인것 같다.
+
+
+
+7. 불변성
+var obj = {a:1,b:2}
+var obj2={...obj}
+
+obj가 가지고있는 속성값을 들고와서 새로 (swallow cpy)
+immer 라이브러리 반드시 써라. spread연산자랑 비교하면 코드가 굉장히 간결해진다. 속도도 빠름.
+immutability + er => 불변성을제공해주는자
+
+virtual dom 의 이전상태와 현재상태를 비교해서 차이가 나는부분만 brower dom에 업뎃
+부모 comp 업뎃 -> 자식도 다 업뎃 그리고 다 모아서 browserdom에 업뎃
+최상위컴포넌트상태 바뀌면 자식컴포넌트 전부다 일어남 -> virtual dom에 이쓴 쓰기는 전부다 일어난다고 보면된다.
+버추얼돔에 쓰기해도 일반적 문제없음(메모리) 브라우저돔은 걍 그리는거
+
+새로운객체를 만드는데 속성만 복사
+단순배열,객체면 spread,
+객체복잡하면 immer
+
+React.memo() 고차 함수
+컴포넌트가 동일한 상태, 속성을 가지고 있으면 불필요 Rendering 방지
+
+render-perf-optimize-0이거 참고한다.
+App > TodoList > TodoListItem 이렇게 세개가 있음. 
+기존이라면 App의 값을 입력할때마다 todolist가 Re-rendering 된다. 
+하지만 React.memo를 사용해서 TodoList, TodoListItem을 감싸게 되면 변경된게 없으니 렌더링이 안되도록 한다.
+=> 효율적
+
+반드시 그래야 하나?아님.
+
+컴포넌트 분할이 권장되는데, 분할이 안되는과정에서는 useCallback을 써라.
+
+
+useRef 
+어떤 값에 대한 참조 객체
+string -> ref1 이 있으면 ref1.current속성을 쓰면 string으로 접근할수있음.
+virtualDOM 기반으로 browserDOM만든다. Element들의 트리 구조가만들어짐.
+browserDOM을 useRef로 참조한다.
+원래 참조객체 만드는거인데 browserDOM도 참조할수 있음.
+
+Component 분할 시 렌더링 최적화를 고려해서 분할을 해라.
+성능과 무관한 컴포넌트는 최적화를 하지 마세요.
+
+무한스크롤
+백단에서 데이터 다 가져오고
+그다음에 스크롤 맨 밑으로 내려갔을때마다 20개씩 더 보여줌
