@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/react-app1"
+    },
+    {
+      "path": "./apps/react-app2"
+    },
+    {
+      "path": "./libs/common"
+    }
+  ]
+}
